@@ -7,18 +7,19 @@ import scrapy
 
 # 小说介绍
 class NovelItem(scrapy.Item):
-    # 小说标题
+    # 小说名
     title = scrapy.Field()
     # 作者
     author = scrapy.Field()
 
     # 最新章节名
     last_chapter = scrapy.Field()
-    # 更新时间
+    # 更新日期和时间
     update_date = scrapy.Field()
+    pretty_update_date = scrapy.Field()
 
     # 小说链接
-    novel_url = scrapy.Field()
+    # novel_url = scrapy.Field()
 
 # 小说目录
 class CatalogItem(scrapy.Item):

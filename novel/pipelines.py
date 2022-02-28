@@ -5,9 +5,89 @@
 
 
 # useful for handling different item types with a single interface
+import pymongo
 from itemadapter import ItemAdapter
+from logging import getLogger
+from scrapy.exceptions import DropItem
 
 
 class NovelPipeline:
     def process_item(self, item, spider):
         return item
+
+
+class MongoPipeline:
+    def __init__(self):
+        self.mongo_host = '47.110.147.155'
+        self.mongo_port = 27017
+        self.username = 'user1'
+        self.password = '123456'
+        self.authSource = 'admin'  # 用于登录的数据库
+        self.db_novel = 'test'  # 用于写入的数据库
+        self.client = pymongo.MongoClient(host=self.mongo_host, port=self.mongo_port, username=self.username,
+                                          password=self.password, authSource=self.authSource)
+
+        self.db = self.client[self.db_novel]  # database: novel
+        self.overview = self.db['overview']  # collection: overview
+        self.detail = self.db['detail']  # collection: detail
+
+        self.logger = getLogger('MyCustomLogger')
+
+    def open_spider(self, spider):
+        try:
+            self.client.admin.command('ping')
+        except pymongo.errors.ConnectionFailure:
+            print("Mongodb server not available! ")
+            exit(1)
+        except pymongo.errors.OperationFailure:
+            print('Authentication faild: user:user1, db:db_test')
+            exit(1)
+
+    def close_spider(self, spider):
+        self.client.close()
+
+    def process_item(self, item, spider):
+        queried = self.overview.find_one({'title': item['title']},
+                                         {
+                                             'info.last_read_chapter': 1,
+                                             'info.update_date': 1
+                                         })
+        if queried is not None:
+            queried_last_read_chapter = queried['info']['last_read_chapter']
+            queried_update = queried['info']['update_date']
+        else:
+            queried_last_read_chapter = None
+            queried_update = None
+
+        # db_post_test = ItemAdapter(item).asdict()
+        db_post = {
+            'title': item['title'],
+            'info': {
+                "author": item['author'],
+                "last_read_chapter": queried_last_read_chapter,
+                "last_chapter": item['last_chapter'],
+                "update_date": item['update_date'],
+                "pretty_update_date": item['pretty_update_date']
+            }
+        }
+
+        # 数据库无该书条目则插入，有该书但不是最新则修改 info{'last_chapter', 'update_date', 'pretty_update_date'}, ，否则不做操作
+        if queried is None:
+            self.overview.insert(db_post)
+            self.logger.debug(db_post)
+            return item
+        elif queried_update != item['update_date']:
+            self.overview.update_one(
+                {'title': item['title']},
+                {'$set': {
+                    'info': {
+                        "last_chapter": item['last_chapter'],
+                        "update_date": item['update_date'],
+                        "pretty_update_date": item['pretty_update_date']
+                    }
+                }}
+            )
+            self.logger.debug(db_post)
+            return item
+        else:
+            raise DropItem()
