@@ -23,7 +23,8 @@ class MongoPipeline:
         self.username = 'user1'
         self.password = '123456'
         self.authSource = 'admin'  # 用于登录的数据库
-        self.db_novel = 'test'  # 用于写入的数据库
+        # self.db_novel = 'test'  # 用于写入的数据库
+        self.db_novel = 'db_test'
         self.client = pymongo.MongoClient(host=self.mongo_host, port=self.mongo_port, username=self.username,
                                           password=self.password, authSource=self.authSource)
 
@@ -53,8 +54,12 @@ class MongoPipeline:
                                              'info.update_date': 1
                                          })
         if queried is not None:
-            queried_last_read_chapter = queried['info']['last_read_chapter']
-            queried_update = queried['info']['update_date']
+            if 'last_read_chapter' not in queried['info']:
+                queried_last_read_chapter = None
+                queried_update = queried['info']['update_date']
+            else:
+                queried_last_read_chapter = queried['info']['last_read_chapter']
+                queried_update = queried['info']['update_date']
         else:
             queried_last_read_chapter = None
             queried_update = None
