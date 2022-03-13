@@ -96,3 +96,13 @@ class MongoPipeline:
             return item
         else:
             raise DropItem()
+
+    def print_overview(self):
+        self.open_spider(None)
+        for item in self.overview.find({}):
+            print(item)
+        self.close_spider(None)
+
+
+
+
