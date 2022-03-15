@@ -2,6 +2,8 @@
 FROM continuumio/anaconda3
 ENV LANG C.UTF-8
 
+COPY .condarc ~/.condarc
+RUN conda clean -i
 RUN conda create -n spider
 RUN activate spider
 RUN conda install scrapy selenium pymongo
