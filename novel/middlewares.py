@@ -140,7 +140,7 @@ class SeleniumMiddleware:
         chrome_options = Options()
         chrome_options.add_argument("--headless")
         #self.browser = webdriver.Chrome(options=chrome_options)
-        self.browser = webdriver.Remote(command_executor='http://127.0.0.1:4444',desired_capabilities={'browserName': 'chrome'})
+        self.browser = webdriver.Remote(command_executor='http://47.110.147.155:4444',desired_capabilities={'browserName': 'chrome'})
 
     def __del__(self):
         self.browser.quit()
