@@ -2,11 +2,8 @@
 FROM continuumio/anaconda3
 ENV LANG C.UTF-8
 
-COPY .condarc ~/.condarc
-RUN conda clean -i
-RUN conda create -n spider
-RUN activate spider
-RUN conda install scrapy selenium pymongo
+COPY .condarc /root/.condarc
+RUN conda clean -i && conda info | grep "user config\|channel" && sleep 5 && conda create -n spider && activate spider && conda install scrapy selenium pymongo
 
 # 工作目录
 WORKDIR /novel
