@@ -42,7 +42,7 @@ $ docker build --tag hhyingzi/novel .
 # run 起来，命名为 novel，并将卷绑定到本地源代码目录
 $ docker run --network host --mount type=bind,src="D:\\code\\python\\爬虫\\novel\\novel",dst=/novel --name novel hhyingzi/novel
 
-$ docker run --network host --mount type=bind,src=/home/code/python/novel/scrapy_novel/ --name novel hhyingzi/novel
+$ docker run --network host --mount type=bind,src=/home/code/python/novel/scrapy_novel/,dst=/novel --name novel hhyingzi/novel
 
 $ docker start novel
 
