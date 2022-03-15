@@ -10,6 +10,7 @@ from itemadapter import ItemAdapter
 from logging import getLogger
 from scrapy.exceptions import DropItem
 import datetime
+import pytz
 
 class NovelPipeline:
     def process_item(self, item, spider):
@@ -72,7 +73,7 @@ class MongoPipeline:
                 "last_chapter": item['last_chapter'],
                 "update_date": item['update_date'],
                 "pretty_update_date": item['pretty_update_date'],
-                "now": datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                "now": datetime.datetime.now(pytz.timezone('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')
             }
         }
 
@@ -90,7 +91,7 @@ class MongoPipeline:
                         "last_chapter": item['last_chapter'],
                         "update_date": item['update_date'],
                         "pretty_update_date": item['pretty_update_date'],
-                        "now": datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                        "now": datetime.datetime.now(pytz.timezone('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')
                     }
                 }}, upsert=True
             )
@@ -100,8 +101,7 @@ class MongoPipeline:
             self.overview.update_one(
                 {'title': item['title']},
                 {'$set': {
-                    'info.now': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                    #}
+                    'info.now': datetime.datetime.now(pytz.timezone('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')
                 }}, upsert=True
             )
             raise DropItem()
