@@ -46,7 +46,7 @@ $ docker run --network host --mount type=bind,src=/home/code/python/novel/scrapy
 
 $ docker start novel
 
-$ docker start -it novel /bin/bash
+$ docker start -a novel /bin/bash
 ```
 
 # 源码地址
