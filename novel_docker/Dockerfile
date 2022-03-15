@@ -3,7 +3,7 @@ FROM continuumio/anaconda3
 ENV LANG C.UTF-8
 
 COPY .condarc ~/.condarc
-RUN conda clean -i && conda install scrapy selenium pymongo
+RUN conda clean -i && conda info | grep "user config\|channels" && sleep 5 && conda install scrapy selenium pymongo
 
 # 工作目录
 WORKDIR /novel
