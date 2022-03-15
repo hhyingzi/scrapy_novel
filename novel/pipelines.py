@@ -9,7 +9,7 @@ import pymongo
 from itemadapter import ItemAdapter
 from logging import getLogger
 from scrapy.exceptions import DropItem
-
+import datetime
 
 class NovelPipeline:
     def process_item(self, item, spider):
@@ -23,8 +23,7 @@ class MongoPipeline:
         self.username = 'user1'
         self.password = '123456'
         self.authSource = 'admin'  # 用于登录的数据库
-        # self.db_novel = 'test'  # 用于写入的数据库
-        self.db_novel = 'db_test'
+        self.db_novel = 'novel'  # 用于写入的数据库
         self.client = pymongo.MongoClient(host=self.mongo_host, port=self.mongo_port, username=self.username,
                                           password=self.password, authSource=self.authSource)
 
@@ -72,7 +71,8 @@ class MongoPipeline:
                 "last_read_chapter": queried_last_read_chapter,
                 "last_chapter": item['last_chapter'],
                 "update_date": item['update_date'],
-                "pretty_update_date": item['pretty_update_date']
+                "pretty_update_date": item['pretty_update_date'],
+                "now": datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             }
         }
 
@@ -86,15 +86,24 @@ class MongoPipeline:
                 {'title': item['title']},
                 {'$set': {
                     'info': {
+                        "author": item['author'],
                         "last_chapter": item['last_chapter'],
                         "update_date": item['update_date'],
-                        "pretty_update_date": item['pretty_update_date']
+                        "pretty_update_date": item['pretty_update_date'],
+                        "now": datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                     }
-                }}
+                }}, upsert=True
             )
             self.logger.debug(db_post)
             return item
         else:
+            self.overview.update_one(
+                {'title': item['title']},
+                {'$set': {
+                    'info.now': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    #}
+                }}, upsert=True
+            )
             raise DropItem()
 
     def print_overview(self):
