@@ -30,6 +30,7 @@ collection: overview，“总览”集合，根据起点网获取的信息
             "last_chapter": 最新章节名
             "update_date": 更新日期和时间（爬取结果）
             "pretty_update_date": <num>小时前 字样
+			"now":现在时间
         }
 }
 
@@ -52,6 +53,21 @@ collection: detail，小说具体信息
     }
 }
 ```
+
+## Web 设计
+### 后端
+- Spring Boot DevTools：修改源代码后自动刷新内容
+- Lombok：自动生成 get set 方法
+- Spring Web：MVC
+- Tyhmeleaf：对象-html数据接口
+- Spring Data MongoDB：连接MongoDB数据库
+- Rest Repositories：使用Rest风格
+
+警告：
+- spring-data-jpa：使用jpa风格，会与MongoDB数据库冲突
+
+### 前端
+无
 
 ## 语言参考
 ### log 输出

@@ -101,6 +101,7 @@ class MongoPipeline:
             self.overview.update_one(
                 {'title': item['title']},
                 {'$set': {
+                    "info.pretty_update_date": item['pretty_update_date'],
                     'info.now': datetime.datetime.now(pytz.timezone('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')
                 }}, upsert=True
             )
