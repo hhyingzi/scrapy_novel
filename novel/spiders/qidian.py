@@ -21,6 +21,8 @@ class QidianSpider(scrapy.Spider):
         'https://book.qidian.com/info/1030433215/',  # 我成了女反派的跟班
         'https://book.qidian.com/info/1024483590/',  # 当系统泛滥成灾
         # '',  # 我在菜市口斩妖除魔那些年
+        'https://book.qidian.com/info/1027440366/',  # 视死如归魏君子
+        'https://book.qidian.com/info/1031587468/',  # 修仙就是这样子的
     ]
 
     def parse(self, response):
