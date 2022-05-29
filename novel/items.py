@@ -35,5 +35,7 @@ class ContentItem(scrapy.Item):
     chapter_content = scrapy.Field()
 
 
-
+class TempItem(scrapy.Item):
+    title_num = scrapy.Field()
+    title_content = scrapy.Field()
 

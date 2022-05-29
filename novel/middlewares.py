@@ -134,16 +134,22 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from scrapy.http import HtmlResponse
 from logging import getLogger
+import traceback
 
 class SeleniumMiddleware:
     def __init__(self, timeout=None, service_args=[]):
         chrome_options = Options()
         chrome_options.add_argument("--headless")
-        #self.browser = webdriver.Chrome(options=chrome_options)
-        self.browser = webdriver.Remote(command_executor='http://47.110.147.155:4444',desired_capabilities={'browserName': 'chrome'})
+        self.browser = webdriver.Chrome(options=chrome_options)
+        #self.browser = webdriver.Remote(command_executor='http://47.110.147.155:4444',desired_capabilities={'browserName': 'chrome'})
+        self.browser.delete_all_cookies()
 
     def __del__(self):
-        self.browser.quit()
+        try:
+            self.browser.quit()
+        except Exception:
+            print("=====关闭selenium时出现异常，docker服务器形式的selenium无法手动关闭，可设置为超时自动关闭=====")
+            traceback.print_exc()
 
     def process_request(self, request, spider):
         logger = getLogger()
