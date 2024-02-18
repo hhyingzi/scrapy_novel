@@ -6,9 +6,8 @@ def print_overview():
 
 
 if __name__ == '__main__':
-    # print_overview()
-    cmdline.execute('scrapy crawl temp_spider'.split())
-
+    print_overview()
+    # cmdline.execute('scrapy crawl qidian'.split())
 
 
 

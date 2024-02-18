@@ -12,6 +12,8 @@ from scrapy.exceptions import DropItem
 import datetime
 import pytz
 
+import configparser
+
 class NovelPipeline:
     def process_item(self, item, spider):
         return item
@@ -19,10 +21,13 @@ class NovelPipeline:
 
 class MongoPipeline:
     def __init__(self):
-        self.mongo_host = '47.110.147.155'
+        config = configparser.ConfigParser()
+        config.read('mypass.ini')
+
+        self.mongo_host = '121.40.148.18'
         self.mongo_port = 27017
-        self.username = 'user1'
-        self.password = '123456'
+        self.username = config.get('mongodb', 'mongo_username')
+        self.password = config.get('mongodb', 'mongo_password')
         self.authSource = 'admin'  # 用于登录的数据库
         self.db_novel = 'novel'  # 用于写入的数据库
         self.client = pymongo.MongoClient(host=self.mongo_host, port=self.mongo_port, username=self.username,

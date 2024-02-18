@@ -5,16 +5,17 @@
 - 纵横中文网 zongheng.py
 
 ### 内容来源
+- 天域小说网
 
 ## Database 数据库
 ### 数据库设计
 #### 用户管理
 - 数据库：admin
 
-用户名 | 密码 | 权限 | 说明
---- | --- | --- | ---
-root | 123456 | userAdminAnyDatabase | 管理用户
-user1 | 123456 | userAdminAnyDatabase, dbAdminAnyDatabase | 操作数据库，写入数据
+用户名 | 密码        | 权限 | 说明
+--- |-----------| --- | ---
+root | w******** | userAdminAnyDatabase | 管理用户
+user1 | w********    | userAdminAnyDatabase, dbAdminAnyDatabase | 操作数据库，写入数据
 
 #### 数据管理
 ##### novel，小说数据库
