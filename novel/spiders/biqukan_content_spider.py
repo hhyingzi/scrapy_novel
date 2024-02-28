@@ -7,9 +7,9 @@ from scrapy import signals
 import pymongo
 import configparser
 
-class ContentSpider(scrapy.Spider):
-    name = 'content_spider'
-    allowed_domains = ['m.tycqzw.net']
+class BiqukanContentSpider(scrapy.Spider):
+    name = 'biqukan_content_spider'
+    allowed_domains = ['www.biqukan8.cc']
     content_logger = logging.getLogger("ContentSpiderLogger")
 
     novel_name = None  # 小说名称
@@ -58,46 +58,42 @@ class ContentSpider(scrapy.Spider):
 
     def start_requests(self):
         # 获取小说名称
-        self.novel_name = "诡电脑"
+        self.novel_name = "班花"
         # 根据小说名称，查找 novel_info
         novel_info_query = self.novel_info_collection.find_one({
             'title': self.novel_name
         })
         # 获取章节列表：chapter_name, chapter_url,
-        for chapter in novel_info_query['chapters'][:3]:
+        for chapter in novel_info_query['chapters'][:]:
             chapter_meta = {
                 "chapter_name": chapter['chapter_name'],
+                'chapter_index': chapter['chapter_index'],
                 "book_name": self.novel_name,
                 "chapter_url": chapter['chapter_url'],
                 "content": ""
             }
             yield scrapy.Request(chapter_meta["chapter_url"], meta=chapter_meta, callback=self.parse)
 
-
+    # 解析章节正文内容
     def parse(self, response):
         self.content_logger.info( f"Parsing content. Url={response.url}.")
         chapter_meta = response.meta
 
-        content = response.xpath(".//div[@id='chaptercontent']//text()").getall()
+        content = response.xpath(".//div[@class='content']//text()").getall()
         content = "".join(content)
         chapter_meta['content'] += content
-        # 迭代至下一页
-        if ("继续阅读" in content):
-            nextpage_url = 'http://' + self.allowed_domains[0] + response.xpath(".//a[@id='pt_next']/@href").get()
-            yield scrapy.Request(nextpage_url, callback=self.parse, meta=chapter_meta)
-        else:
-            chapter_item = items.ChapterItem()
-            chapter_item['chapter_name'] = chapter_meta['chapter_name']
-            chapter_item['book_name'] = chapter_meta['book_name']
-            chapter_item['chapter_url'] = chapter_meta['chapter_url']
-            chapter_item['content'] = chapter_meta['content']
-            yield chapter_item
-        # 获取所有章节
-        # yield scrapy.Request(url="http://m.tycqzw.net/69_69296/all.html", callback=self.parse_chapters, meta={'novel_item': novel_item})
+
+        chapter_item = items.ChapterItem()
+        chapter_item['chapter_name'] = chapter_meta['chapter_name']
+        chapter_item['chapter_index'] = chapter_meta['chapter_index']
+        chapter_item['book_name'] = chapter_meta['book_name']
+        chapter_item['chapter_url'] = chapter_meta['chapter_url']
+        chapter_item['content'] = chapter_meta['content']
+        yield chapter_item
 
     @classmethod
     def from_crawler(cls, crawler, *args, **kwargs):
-        spider = super(ContentSpider, cls).from_crawler(crawler, *args, **kwargs)
+        spider = super(BiqukanContentSpider, cls).from_crawler(crawler, *args, **kwargs)
         crawler.signals.connect(spider.spider_opened, signal=signals.spider_opened)
         crawler.signals.connect(spider.spider_closed, signal=signals.spider_closed)
         return spider

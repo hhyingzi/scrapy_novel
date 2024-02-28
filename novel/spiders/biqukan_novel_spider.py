@@ -6,42 +6,36 @@ import re
 from scrapy import signals
 
 class NovelSpider(scrapy.Spider):
-    name = 'tianyu_novel_spider'
-    allowed_domains = ['m.tycqzw.net']
+    name = 'biqukan_novel_spider'
+    allowed_domains = ['www.biqukan8.cc']
 
     start_urls = [
-        # 末尾不要加 /
-        # 'http://m.tycqzw.net/69_69296',  # 诡电脑，主页
-        'http://m.tycqzw.net/150_150178',  # 满堂华彩，主页
+        'https://www.biqukan8.cc/34_34697/'  # 《班花》天朝书生，目录页
     ]
     novel_logger = logging.getLogger("TianyuNovelSpiderLogger")
 
+    # 将小说信息存入数据库
     def parse(self, response):
         self.novel_logger.info(f"Parsing novel info. Url={response.url}.")
         novel_item = NovelItem()
-        novel_item['title'] = response.xpath(".//span[@class='title']/text()").get()  # 标题
-        novel_item['author'] = response.xpath(".//p[@class='author']/text()").get()  # 作者
-        novel_item['last_chapter'] = response.xpath(".//div[@class='directoryArea']/p[1]/a/text()").get()  # 最近更新章节
-        update_date_text = response.xpath(".//h2[@class='str-over-dot']/a/text()").get()
-        novel_item['update_date'] = re.search("更新：(.*)", update_date_text).group(1)  # 最近更新日期
-        novel_item['platform'] = '天域小说网'  # 小说所在平台
+        novel_item['title'] = response.xpath(".//div[@class='info']/h2/text()").get()  # 标题
+        novel_item['author'] = re.search("作者：(.*)", response.xpath(".//div[@class='small']/span[1]/text()").get())[1]  # 作者
+        novel_item['last_chapter'] = response.xpath(".//div[@class='small']/span[6]/a/text()").get()  # 最近更新章节
+        update_date_text = response.xpath(".//div[@class='small']/span[5]/text()").get()
+        novel_item['update_date'] = re.search("更新时间：(.*)", update_date_text).group(1)  # 最近更新日期
+        novel_item['platform'] = '笔趣看：www.biqukan8.cc'  # 小说所在平台
         novel_item['platform_url'] = response.url  # 小说主页地址
+
         # 获取所有章节
-        yield scrapy.Request(url=f"{self.start_urls[0]}/all.html", callback=self.parse_chapters, meta={'novel_item': novel_item})
-
-    # 从目录页，解析所有章节
-    def parse_chapters(self, response):
         self.novel_logger.info(f"Parsing chapter list. Url={response.url}.")
-
-        novel_item = response.meta['novel_item']
         novel_item['chapters'] = []
 
         # 章节集合
         chapter_item = ChapterItem()
 
-        chapters = response.xpath(".//div[@id='chapterlist']//p")
+        chapters = response.xpath(".//dd[preceding-sibling::dt[2]]")
         chapter_index = 1;
-        for chapter in chapters[1:]:  # 第一个元素不是章节
+        for chapter in chapters[:]:
             chapter_item['chapter_name'] = chapter.xpath(".//text()").get()  # 章节名
             chapter_item['chapter_url'] = 'http://' + self.allowed_domains[0] + chapter.xpath(".//@href").get()  # 章节url
             novel_item['chapters'].append({
