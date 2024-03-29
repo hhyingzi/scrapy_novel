@@ -1,17 +1,21 @@
 from scrapy.crawler import CrawlerProcess  # 用于开启spider进程
 from scrapy.utils.project import get_project_settings  # 用于加载项目配置
 
-from spiders import qidian
-from spiders import zongheng
+# 天域
+from spiders.tianyu import tianyu_novel_spider, tianyu_content_spider
+
+# bqg123
+from spiders.bqg123 import bqg123_novel_spider, bqg123_content_spider
 
 process = CrawlerProcess(get_project_settings())
-process.crawl(qidian.QidianSpider)  # 进程1
-process.crawl(zongheng.ZonghengSpider)  # 进程2
+
+# 天域
+# process.crawl(tianyu_novel_spider.NovelSpider) # info
+process.crawl(tianyu_content_spider.TianyuContentSpider) # content
+
+
+# bqg123
+# process.crawl(bqg123_novel_spider.NovelSpider) # info
+# process.crawl(bqg123_content_spider.ContentSpider)
+
 process.start()
-
-
-
-# from scrapy import cmdline
-# cmdline.execute('scrapy crawl qidian'.split())
-# cmdline.execute('scrapy crawl zongheng'.split())
-# cmdline.execute('scrapy crawl TianYu_spider'.split())

@@ -12,11 +12,9 @@ class TianyuContentSpider(scrapy.Spider):
     allowed_domains = ['m.tycqzw.net']
     content_logger = logging.getLogger("ContentSpiderLogger")
 
-    novel_name = None  # 小说名称
+    novel_name = '喜欢捉弄人的老婆很可恶啊'  # 名称
 
     def __init__(self):
-        self.novel_name = None
-
         # 加载配置文件
         config = configparser.ConfigParser()
         config.read('mypass.ini')
@@ -57,8 +55,6 @@ class TianyuContentSpider(scrapy.Spider):
             exit(1)
 
     def start_requests(self):
-        # 获取小说名称
-        self.novel_name = "满唐华彩"
         # 根据小说名称，查找 novel_info
         novel_info_query = self.novel_info_collection.find_one({
             'title': self.novel_name

@@ -2,12 +2,15 @@
 #
 # See documentation in:
 # https://docs.scrapy.org/en/latest/topics/spider-middleware.html
+import logging
+import re
 
+import scrapy.http
 from scrapy import signals
 import random
 # useful for handling different item types with a single interface
 from itemadapter import is_item, ItemAdapter
-
+import logging
 
 class NovelSpiderMiddleware:
     # Not all methods need to be defined. If a method is not defined,
@@ -131,36 +134,70 @@ class RandomUserAgentMiddleware(object):
 
 
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 from scrapy.http import HtmlResponse
-from logging import getLogger
-import traceback
 
 class SeleniumMiddleware:
-    def __init__(self, timeout=None, service_args=[]):
-        chrome_options = Options()
+    def __init__(self):
+        # chrome_options = Options()
+        chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument("--headless")
-        self.browser = webdriver.Chrome(options=chrome_options)
+        from selenium.webdriver.chrome.service import Service
+        service = Service(executable_path=r"E:\myenv\anaconda\envs\spider\chromedriver.exe")
+        self.driver = webdriver.Chrome(service=service, options=chrome_options)
         #self.browser = webdriver.Remote(command_executor='http://47.110.147.155:4444',desired_capabilities={'browserName': 'chrome'})
-        self.browser.delete_all_cookies()
-
-    def __del__(self):
-        try:
-            self.browser.quit()
-        except Exception:
-            print("=====关闭selenium时出现异常，docker服务器形式的selenium无法手动关闭，可设置为超时自动关闭=====")
-            traceback.print_exc()
+        self.driver.delete_all_cookies()
+        self.novel_logger = logging.getLogger("MiddlewareLogger")
 
     def process_request(self, request, spider):
-        logger = getLogger()
-        logger.debug('Selenium is Starting... ')
+        self.novel_logger.info(f'Selenium id={id(self)} fetch：{request.url}')
+        self.driver.get(request.url)
+        url = request.url
+        body = self.driver.page_source
+        # return HtmlResponse(url=request.url, body=self.driver.page_source, request=request, encoding=' utf-8', status=200)
+        return HtmlResponse(url=url, body=body, request=request, encoding=' utf-8', status=200)
 
-        self.browser.get(request.url)
-        return HtmlResponse(url=request.url, body=self.browser.page_source, request=request, encoding=' utf-8', status=200)
+    @classmethod
+    def from_crawler(cls, crawler, *args, **kwargs):
+        # This method is used by Scrapy to create your spiders.
+        selenium_middleware = cls()
+        crawler.signals.connect(selenium_middleware.spider_opened, signal=signals.spider_opened)
+        crawler.signals.connect(selenium_middleware.spider_closed, signal=signals.spider_closed)
+        return selenium_middleware
+
+    def spider_opened(self, spider):
+        self.novel_logger.info(f'Selenium id={id(self)} start.')
+
+    def spider_closed(self, spider):
+        self.driver.quit()
+        self.novel_logger.info(f'Selenium id={id(self)} closed.')
 
 
-
-
-
-
+class ResponseDecodeMiddleware:
+    """将非 utf-8 编码的 response 进行正确 decode。"""
+    def __init__(self):
+        self.logger = logging.getLogger("ResponseDecodeMiddlewareLogger")
+    def process_response(self, request, response, spider):
+        encoding_html = response.xpath(".//meta/@content").get()
+        if 'charset' not in encoding_html:
+            return response
+        # 响应编码非 utf-8 时，需改变其解码方式
+        page_encoding = re.search("charset=(.*)", encoding_html)[1].strip()  # 'gbk'
+        # 默认的 utf8 没问题
+        if 'utf' in page_encoding.lower():
+            return response
+        # 笔趣看8：返回的 html 说是 gbk 编码，实际上是 utf-8。需用 utf-8 对内容解码。
+        elif 'gb' in page_encoding.lower():
+            self.logger.info(f"Response.encoding is {page_encoding}. Now convert to utf-8.")
+            # 创建一个新的 TextResponse 对象，并指定其编码为 gbk，以使用 gbk 来解码。
+            text_response = scrapy.http.TextResponse(
+                url=response.url,
+                status=response.status,
+                headers=response.headers,
+                body=response.body,
+                encoding='utf-8'
+            )
+            return text_response
+        else:
+            self.logger.info(f"Response.encoding is {page_encoding}.")
+            raise BaseException
 

@@ -10,9 +10,8 @@ class NovelSpider(scrapy.Spider):
     allowed_domains = ['m.tycqzw.net']
 
     start_urls = [
-        # 末尾不要加 /
-        # 'http://m.tycqzw.net/69_69296',  # 诡电脑，主页
-        'http://m.tycqzw.net/150_150178',  # 满堂华彩，主页
+        # 末尾要加 /
+        'http://m.tycqzw.net/152_152242/',  # 喜欢捉弄人的老婆很可恶啊
     ]
     novel_logger = logging.getLogger("TianyuNovelSpiderLogger")
 

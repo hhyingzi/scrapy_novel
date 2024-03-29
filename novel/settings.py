@@ -53,6 +53,7 @@ DOWNLOADER_MIDDLEWARES = {
     #    'novel.middlewares.NovelDownloaderMiddleware': 543,
     'novel.middlewares.RandomUserAgentMiddleware': 544,
     'novel.middlewares.SeleniumMiddleware': 545,
+    'novel.middlewares.ResponseDecodeMiddleware': 600
 }
 
 # Enable or disable extensions
@@ -64,8 +65,8 @@ DOWNLOADER_MIDDLEWARES = {
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-    # 'novel.pipelines.NovelPipeline': 300,
-    'novel.pipelines.MongoPipeline': 800
+# 'novel.pipelines.QidianPipeline': 800,   # 起点，爬取最新信息
+    'novel.pipelines.TianyuPipeline': 801  # 天域小说网，爬取正文内容
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
@@ -88,3 +89,18 @@ ITEM_PIPELINES = {
 # HTTPCACHE_DIR = 'httpcache'
 # HTTPCACHE_IGNORE_HTTP_CODES = []
 # HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
+
+# Scrapy Log Configure
+import os
+root_path = (os.path.dirname(os.path.dirname(__file__)))  # 项目根目录
+logs_folder = os.path.join(root_path, 'logs')  # 日志目录: scrapy_novel/logs/
+os.makedirs(logs_folder, exist_ok=True)
+log_file = os.path.join(logs_folder, "novel.log")
+LOG_FILE = None
+
+LOG_FILE_APPEND = False
+LOG_LEVEL = "INFO"
+LOG_ENCODING = "utf-8"
+
+# 不使用去重过滤器。因为 bqg123 的正文内容中，url 全部相同，只是get请求参数不同，导致其他章节内容被过滤。
+DUPEFILTER_CLASS = 'scrapy.dupefilters.BaseDupeFilter'
