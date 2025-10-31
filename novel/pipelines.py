@@ -4,6 +4,7 @@
 # See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 
 # useful for handling different item types with a single interface
+import json
 import pymongo
 from itemadapter import ItemAdapter
 from scrapy.exceptions import DropItem
@@ -13,6 +14,19 @@ import pytz
 import configparser
 import novel
 import logging
+
+# 将item作为JSON储存到本地
+class JsonWriterPipeline:
+    def open_spider(self, spider):
+        self.file = open("items.jsonl", "w")
+
+    def close_spider(self, spider):
+        self.file.close()
+
+    def process_item(self, item, spider):
+        line = json.dumps(ItemAdapter(item).asdict()) + "\n"
+        self.file.write(line)
+        return item
 
 # 天域小说网内容，存储到 MongoDB
 class TianyuPipeline:
@@ -222,4 +236,5 @@ class TianyuPipeline:
 #         for item in self.overview.find({}):
 #             print(item)
 #         self.close_spider(None)
+
 

@@ -142,7 +142,7 @@ class SeleniumMiddleware:
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument("--headless")
         from selenium.webdriver.chrome.service import Service
-        service = Service(executable_path=r"E:\myenv\anaconda\envs\spider\chromedriver.exe")
+        service = Service(executable_path=r"C:\Users\12921\Downloads\chromedriver-win64\chromedriver-win64\chromedriver.exe")
         self.driver = webdriver.Chrome(service=service, options=chrome_options)
         #self.browser = webdriver.Remote(command_executor='http://47.110.147.155:4444',desired_capabilities={'browserName': 'chrome'})
         self.driver.delete_all_cookies()
@@ -153,8 +153,9 @@ class SeleniumMiddleware:
         self.driver.get(request.url)
         url = request.url
         body = self.driver.page_source
-        # return HtmlResponse(url=request.url, body=self.driver.page_source, request=request, encoding=' utf-8', status=200)
-        return HtmlResponse(url=url, body=body, request=request, encoding=' utf-8', status=200)
+        # 如果网页乱码，那么自己定义解码方式，本示例为 gbk
+        return HtmlResponse(url=request.url, body=self.driver.page_source, request=request, encoding='gbk', status=200)
+        # return HtmlResponse(url=url, body=body, request=request, encoding=' utf-8', status=200)
 
     @classmethod
     def from_crawler(cls, crawler, *args, **kwargs):

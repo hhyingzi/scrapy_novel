@@ -7,11 +7,16 @@ from spiders.tianyu import tianyu_novel_spider, tianyu_content_spider
 # bqg123
 from spiders.bqg123 import bqg123_novel_spider, bqg123_content_spider
 
+# 临时
+from spiders.tempSpider import shao_fu_bai_jie_spider
+
 process = CrawlerProcess(get_project_settings())
 
 # 天域
 # process.crawl(tianyu_novel_spider.NovelSpider) # info
-process.crawl(tianyu_content_spider.TianyuContentSpider) # content
+# process.crawl(tianyu_content_spider.TianyuContentSpider) # content
+
+process.crawl(shao_fu_bai_jie_spider.NovelSpider)
 
 
 # bqg123

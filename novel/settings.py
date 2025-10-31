@@ -53,7 +53,7 @@ DOWNLOADER_MIDDLEWARES = {
     #    'novel.middlewares.NovelDownloaderMiddleware': 543,
     'novel.middlewares.RandomUserAgentMiddleware': 544,
     'novel.middlewares.SeleniumMiddleware': 545,
-    'novel.middlewares.ResponseDecodeMiddleware': 600
+    # 'novel.middlewares.ResponseDecodeMiddleware': 600
 }
 
 # Enable or disable extensions
@@ -65,8 +65,8 @@ DOWNLOADER_MIDDLEWARES = {
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-# 'novel.pipelines.QidianPipeline': 800,   # 起点，爬取最新信息
-    'novel.pipelines.TianyuPipeline': 801  # 天域小说网，爬取正文内容
+#     'novel.pipelines.TianyuPipeline': 801  # 天域小说网，爬取正文内容
+'novel.pipelines.JsonWriterPipeline': 801  # 将item存储为本地json
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

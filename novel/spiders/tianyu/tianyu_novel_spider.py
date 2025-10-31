@@ -51,6 +51,8 @@ class NovelSpider(scrapy.Spider):
             chapter_index += 1
         yield novel_item
 
+    # 从章节正文页，解析正文内容
+
     # 设置爬虫日志
     @classmethod
     def from_crawler(cls, crawler, *args, **kwargs):
